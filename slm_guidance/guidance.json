@@ -1,0 +1,80 @@
+{
+  "summary": "The haemogram results show elevated lymphocytes and a decreased MPV. Further investigation is recommended.",
+  "abnormal_findings": [
+    {
+      "name": "Lymphocytes",
+      "status": "HIGH",
+      "severity": "moderate",
+      "possible_causes": [
+        "Viral infection",
+        "Autoimmune disorder",
+        "Lymphoma"
+      ],
+      "lifestyle_guidance": [
+        "Maintain adequate hydration",
+        "Practice good hygiene to prevent infection"
+      ],
+      "nutrition_hints": [
+        "Consume a balanced diet rich in vitamins and minerals"
+      ],
+      "follow_up_tests": [
+        "Repeat CBC in 2-4 weeks",
+        "Consider further testing based on lymphocyte count and morphology"
+      ],
+      "when_to_see_doctor": [],
+      "red_flags": [
+        "Recent travel to areas with endemic diseases"
+      ]
+    },
+    {
+      "name": "Absolute Lymphocyte Count",
+      "status": "HIGH",
+      "severity": "moderate",
+      "possible_causes": [
+        "Severe infection",
+        "Bone marrow disorder"
+      ],
+      "lifestyle_guidance": [
+        "Maintain a healthy immune system through rest and proper nutrition"
+      ],
+      "nutrition_hints": [
+        "Ensure adequate intake of vitamins and minerals"
+      ],
+      "follow_up_tests": [
+        "Repeat CBC in 2-4 weeks",
+        "Assess for signs of infection"
+      ],
+      "when_to_see_doctor": [],
+      "red_flags": [
+        "Recent fever",
+        "Night sweats"
+      ]
+    },
+    {
+      "name": "MPV (Mean Platelet Volume)",
+      "status": "LOW",
+      "severity": "mild",
+      "possible_causes": [
+        "Vitamin deficiency",
+        "Blood clotting disorders",
+        "Medication side effects"
+      ],
+      "lifestyle_guidance": [
+        "Ensure adequate intake of Vitamin B12 and Folate"
+      ],
+      "nutrition_hints": [
+        "Consume a diet rich in fruits and vegetables"
+      ],
+      "follow_up_tests": [
+        "Repeat CBC in 2-4 weeks",
+        "Assess for signs of bleeding"
+      ],
+      "when_to_see_doctor": [],
+      "red_flags": [
+        "Recent surgery",
+        "Family history of bleeding disorders"
+      ]
+    }
+  ],
+  "disclaimer": "General information only; not a diagnosis."
+}
