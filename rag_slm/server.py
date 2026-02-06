@@ -8,8 +8,91 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_community.vectorstores import Chroma
+from slm_guidance.ollama_client import generate_insights 
 
 app = FastAPI(title="MEDRAG - Real-Time Analysis")
+
+@app.get("/download-report")
+async def download_report():
+    try:
+        # Load the most recent analysis
+        if not os.path.exists("structured.json"):
+            return {"status": "error", "message": "No active report found"}
+            
+        with open("structured.json", "r") as f:
+            data = json.load(f)
+        
+        # Generate Excel
+        file_path = generate_medical_excel(data)
+        
+        return FileResponse(
+            path=file_path, 
+            filename="Medical_Analysis_Report.xlsx",
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/history")
+async def get_history():
+    output_dir = "outputs"
+    if not os.path.exists(output_dir):
+        return []
+    
+    files = []
+    for f in os.listdir(output_dir):
+        if f.endswith(".xlsx"):
+            path = os.path.join(output_dir, f)
+            files.append({
+                "name": f,
+                "timestamp": os.path.getmtime(path)
+            })
+    # Return sorted by latest
+    return sorted(files, key=lambda x: x['timestamp'], reverse=True)
+
+@app.post("/upload")
+async def upload_report(file: UploadFile = File(...)):
+    temp_path = f"temp_{file.filename}"
+    with open(temp_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    try:
+        # 1. OCR & Parsing
+        subprocess.run(["python", "ocr.py", "--input", temp_path, "--out", "ocr_out.json"], check=True)
+        subprocess.run(["python", "parse.py", "--input", "ocr_out.json", "--out", "structured.json"], check=True)
+        
+        # 2. Load Structured Data
+        with open("structured.json", "r") as f:
+            report_data = json.load(f)
+        
+        # 3. Generate Suggestions via SLM (Gemma-3)
+        # We pass only abnormal tests to save tokens and improve focus
+        abnormal_summary = json.dumps(report_data.get("abnormal", []), indent=2)
+        
+        insight_prompt = f"""
+        Analyze these abnormal medical results and provide:
+        1. A brief 2-sentence summary of the patient's condition.
+        2. 3-4 actionable lifestyle suggestions.
+        3. Clear recommendations for follow-up tests or doctor consultations.
+        
+        DATA: {abnormal_summary}
+        """
+        
+        ai_analysis = llm.invoke(insight_prompt).strip()
+        
+        # 4. Ingest into RAG for future chatting
+        subprocess.run(["python", "ingest.py", "--json", "structured.json"], check=True)
+        
+        return {
+            "status": "success",
+            "analysis": report_data,
+            "ai_suggestions": ai_analysis
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    finally:
+        if os.path.exists(temp_path): os.remove(temp_path)
+
 
 # CORS Middleware
 app.add_middleware(
